@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RabbitMQ Test</title>
+</head>
+
+<body>
+
+  <h1></h1>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+  <script>
+    var url = "ws://localhost:15674/ws";
+    var client = Stomp.client(url);
+    client.heartbeat.outgoing = 0;
+    client.heartbeat.incoming = 0;
+
+    client.debug = onDebug;
+
+    // Make sure the user has limited access rights
+    client.connect("guest", "guest", onConnect, onError);
+
+    function onConnect() {
+      var id = client.subscribe("/queue/queue_simple", function (d) {
+        document.querySelector('h1').innerText = d.body
+      });
+    }
+
+    function sendMsg() {
+      client.send('/queue/queue_simple', { "content-type": "text/plain" }, 'msg to send');
+    }
+
+    function onError(e) {
+      console.log("STOMP ERROR", e);
+    }
+
+    function onDebug(m) {
+      console.log("STOMP DEBUG", m);
+    }
+  </script>
+</body>
+
+</html>
